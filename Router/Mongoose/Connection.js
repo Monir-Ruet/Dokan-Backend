@@ -8,12 +8,14 @@ const url = "mongodb+srv://monir:Lo94EXOinI5Wn5fG@cluster1.2mata.mongodb.net/Mon
 mongoose.connect(url,{
   useUnifiedTopology:true,
   useNewUrlParser:true,
-}).then(console.log("Connected to mongodb"))
-  .catch((err)=>{
-    console.log(err)
+})
+let connection=mongoose.connection;
+connection.on('connected',()=>{
+  console.log('[+] Database connection established...');
+  connection.on('disconnected',()=>{
+    console.log('[-] Database connection lost...')
   })
-
-
+})
 
 module.exports={
     UserModel,

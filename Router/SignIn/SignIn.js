@@ -19,7 +19,7 @@ const Response=(status,token,Message,name,username,email,role)=>{
 
 Router.post('/',async(req,res,next)=>{
 	let data=req.body;
-	if(!data.username || !data.password) return res.json(Response(0,'','','','',''));
+	if(!data.username || !data.password) return res.json(Response(0,'','Please enter all credential','','',''));
 
 	try {
 		const user = await UserModel.findOne({ Username: data.username });
@@ -33,7 +33,8 @@ Router.post('/',async(req,res,next)=>{
 		} else {
 			res.send(Response(false,'','Wrong username or password','','','',''));
 		}
-	  } catch (error) {
+	  } catch (err) {
+      console.log(err);
 		res.send("Internal Server error Occured");
 	  }
 })

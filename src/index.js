@@ -12,8 +12,8 @@ const signin=require('../Router/SignIn/SignIn');
 const Product=require('../Router/Product/Product.js')
 const singup=require('../Router/SignUp/SignUp')
 const LoggedUser=require('../Router/Logged/loggedUser')
-app.listen(process.env.PORT || 5000.,()=>{
-  console.log("Server Running")
+app.listen(process.env.PORT || 3000.,()=>{
+  console.log("[+] Server Running...")
 });
 
 // Middlewares
