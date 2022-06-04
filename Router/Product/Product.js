@@ -1,39 +1,12 @@
 const express=require('express');
 const router=express.Router();
 const bodyParser= require('body-parser')
-const multer  = require('multer')
 const path =require('path')
 const fs=require('fs')
 const { isAuthorized } =require('../Authentication/Authentication')
 const { Product }=require('../Mongoose/Connection');
 router.use(express.json())
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './Image')
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix)
-  },
-})
-
-router.use('/image',express.static('./Image'));
-
-
-const upload = multer({ 
-  storage: storage ,
-  fileFilter: function (req, file, callback) {
-    var ext = path.extname(file.originalname);
-    if(ext !== '.png' && ext !== '.jpg' && ext !== '.jpeg') {
-        return callback(new Error('Only images are allowed'))
-    }
-    callback(null, true)
-  },
-  limits:{
-    fileSize: 1024 * 1024
-  }
-})
 
 const ResponseMassage=(status,duplicate,massage)=>{
   return {
@@ -43,30 +16,12 @@ const ResponseMassage=(status,duplicate,massage)=>{
   };
 }
 
-router.post('/upload',upload.single('Image'),(req,res)=>{
-  const file=req.file;
-  if(file!=null){
-    res.send({
-      status:true,
-      filename:file.filename,
-    })
-  }
-  else return res.send({status:false});
-})
-
-let deleteFile=(path)=>{
-  fs.unlinkSync(path);
-}
-router.post('/add',upload.single('Image'),async(req,res)=>{
-  const file=req.file;
-  if(!file) return res.send("Please provide a image");
+router.post('/add',async(req,res)=>{
   const ProductInfo=req.body;
-  if(!ProductInfo.Name || !ProductInfo.Code | !ProductInfo.Price | !ProductInfo.Category){
-    deleteFile(file.path);
+  if(!ProductInfo.Name || !ProductInfo.Code | !ProductInfo.Price | !ProductInfo.Category || !ProductInfo.ImageUrl){
     return res.send(ResponseMassage(0,0,'Please provide proper credentials'));
   }
   if(await Product.exists({Code:ProductInfo.Code})!=null) {
-    deleteFile(file.path);
     return res.send(ResponseMassage(0,1,'Already exits in database'));
   }
   const ProductModel=await new Product({
@@ -75,7 +30,7 @@ router.post('/add',upload.single('Image'),async(req,res)=>{
     Category:ProductInfo.Category,
     Price:ProductInfo.Price,
     Description:ProductInfo.Description,
-    ImageUrl:file.filename,
+    ImageUrl:ProductInfo.ImageUrl,
     Origin:ProductInfo.Origin,
     CreatedDate:Date.now()
   })
