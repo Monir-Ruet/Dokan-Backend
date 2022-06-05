@@ -38,6 +38,7 @@ app.get('/',(req,res)=>{
 })
 app.post('/notify',isAuthorized,(req,res)=>{
   if(req.role==='Admin') io.emit('notify',req.body.Code);
+  return res.json({});
 })
 app.use((err, req, res, next) => {
   if(err instanceof SyntaxError && err.status===400 && 'body' in err) return res.status(400).send({Status:400,Message:"Bad Request"});
